@@ -1,0 +1,138 @@
+networks:
+  payshield-net:
+    driver: bridge
+
+volumes:
+  db_data:
+  es_data:
+
+services:
+  # --- 1. POSTGRES ---
+  postgres:
+    image: postgres:15-alpine
+    container_name: payshield_db
+    restart: always
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASS}
+      POSTGRES_DB: ${DB_NAME}
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    networks:
+      - payshield-net
+    ports:
+      - "${PORT_DB}:5432"
+
+  # --- 2. KEYCLOAK ---
+  keycloak:
+    image: quay.io/keycloak/keycloak:23.0
+    container_name: payshield_keycloak
+    command: start-dev
+    environment:
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://postgres:5432/${DB_NAME}
+      KC_DB_USERNAME: ${DB_USER}
+      KC_DB_PASSWORD: ${DB_PASS}
+      KEYCLOAK_ADMIN: ${KEYCLOAK_USER}
+      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_PASS}
+    ports:
+      - "${PORT_KEYCLOAK}:8080"
+    depends_on:
+      - postgres
+    networks:
+      - payshield-net
+
+  # --- 3. KONG GATEWAY ---
+  kong:
+    image: kong:3.4
+    container_name: payshield_kong
+    restart: always
+    environment:
+      KONG_DATABASE: "off"
+      KONG_DECLARATIVE_CONFIG: /usr/local/kong/declarative/kong.yml
+      KONG_PROXY_ACCESS_LOG: /dev/stdout
+      KONG_ADMIN_ACCESS_LOG: /dev/stdout
+      KONG_PROXY_LISTEN: 0.0.0.0:8000
+      KONG_ADMIN_LISTEN: 0.0.0.0:8001
+    volumes:
+      - ./gateway/kong/kong.yml:/usr/local/kong/declarative/kong.yml
+    ports:
+      - "${PORT_API}:8000"
+      - "${PORT_KONG_ADMIN}:8001"
+    networks:
+      - payshield-net
+
+  # --- 4. BACKEND ---
+  backend:
+    build: ./services/backend
+    container_name: payshield_backend
+    restart: always
+    environment:
+      DB_HOST: postgres
+      DB_USER: ${DB_USER}
+      DB_PASS: ${DB_PASS}
+      DB_NAME: ${DB_NAME}
+      PORT: 3000
+    depends_on:
+      - postgres
+    networks:
+      - payshield-net
+
+  # --- 5. FRONTEND ---
+  frontend:
+    build: ./services/frontend
+    container_name: payshield_frontend
+    restart: always
+    ports:
+      - "${PORT_FRONTEND}:80"
+    depends_on:
+      - backend
+    networks:
+      - payshield-net
+
+  # --- 6. ELASTICSEARCH ---
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.17.13
+    container_name: payshield_es
+    environment:
+      - discovery.type=single-node
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - xpack.security.enabled=true
+      - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
+    volumes:
+      - es_data:/usr/share/elasticsearch/data
+    ports:
+      - "${PORT_ELASTIC}:9200" 
+    networks:
+      - payshield-net
+
+  # --- 7. LOGSTASH ---
+  logstash:
+    image: docker.elastic.co/logstash/logstash:7.17.13
+    container_name: payshield_logstash
+    volumes:
+      - ./infra/logstash/logstash.conf:/usr/share/logstash/pipeline/logstash.conf
+    ports:
+      - "${PORT_LOGSTASH}:5044" 
+    environment:
+      - XPACK_MONITORING_ENABLED=false
+      - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
+    depends_on:
+      - elasticsearch
+    networks:
+      - payshield-net
+
+  # --- 8. KIBANA ---
+  kibana:
+    image: docker.elastic.co/kibana/kibana:7.17.13
+    container_name: payshield_kibana
+    ports:
+      - "${PORT_KIBANA}:5601" 
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+      - ELASTICSEARCH_USERNAME=elastic
+      - ELASTICSEARCH_PASSWORD=${ELASTIC_PASSWORD}
+    depends_on:
+      - elasticsearch
+    networks:
+      - payshield-net
