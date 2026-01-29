@@ -73,6 +73,8 @@ services:
       DB_PASS: ${DB_PASS}
       DB_NAME: ${DB_NAME}
       PORT: 3000
+    ports:
+      - "${PORT_BACKEND}:3000"
     depends_on:
       - postgres
     networks:
@@ -85,6 +87,8 @@ services:
     restart: always
     ports:
       - "${PORT_FRONTEND}:80"
+    volumes:
+      - ./services/frontend/src:/app/src
     depends_on:
       - backend
     networks:
