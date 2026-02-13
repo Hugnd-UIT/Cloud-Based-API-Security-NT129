@@ -21,3 +21,16 @@ Route::get('/payroll', function() {
 Route::get('/login', function() {
     return view('auth.login');
 });
+
+use App\Http\Controllers\ProfileApiController;
+
+Route::middleware(['auth'])->group(function () {
+    
+    // Route xem hồ sơ của tôi (Click từ menu)
+    Route::get('/my-profile', [ProfileApiController::class, 'myProfile'])->name('profile.me');
+
+    // Route xem chi tiết nhân viên (Có tham số manv)
+    // Ví dụ: domain.com/profile/NV001
+    Route::get('/profile/{manv}', [ProfileApiController::class, 'show'])->name('profile.show');
+
+});
