@@ -17,10 +17,12 @@
                 <div class="bg-blue-600 text-white p-2 rounded-lg font-bold">PS</div>
                 <span class="font-bold text-xl text-gray-700">PayShield</span>
             </div>
+            <!--Sửa lại link sau khi làm đăng nhập-->
             <div class="hidden md:flex gap-6">
-                <a href="/dashboard" class="text-blue-600 font-bold border-b-2 border-blue-600 pb-1">Dashboard</a>
+                <a href="/dashboard/manager" class="text-blue-600 font-bold border-b-2 border-blue-600 pb-1">Dashboard</a>
                 <a href="/roster" class="text-gray-500 hover:text-blue-600 font-medium transition">Nhân sự</a>
                 <a href="/payroll" class="text-gray-500 hover:text-blue-600 font-medium transition">Bảng lương</a>
+                <a href="/profile" class="text-gray-500 hover:text-blue-600 font-medium transition">Profile</a>
             </div>
         </div>
         <div class="flex items-center gap-3">
@@ -64,7 +66,7 @@
         const format_money = (amount) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amount);
         
         document.addEventListener('DOMContentLoaded', function() {
-            fetch('/api/dashboard').then(r => r.json()).then(res => {
+            fetch('/api/dashboard/manager').then(r => r.json()).then(res => {
                 if(res.status) {
                     const stats = res.data.card_stats;
                     document.getElementById('stat_employees').innerText = stats.total_employees;

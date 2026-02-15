@@ -11,10 +11,9 @@ class ProfileApiController extends Controller
     public function showProfile($manv)
     {
         $employee = Employee::where('MANV', $manv)->firstOrFail();
-        return view('employee.profile', [
+        return view('profile', [
             'employee' => $employee,
             'user' => $employee 
         ]);
     }
-
 }

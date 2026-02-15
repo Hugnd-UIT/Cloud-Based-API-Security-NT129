@@ -13,10 +13,7 @@ return new class extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
-            $table->string('TENDANGNHAP')->unique();
-            $table->string('MATKHAU');
-            $table->string('EMAIL');
-            $table->string('QUYENHAN')->default('USER');
+            $table->string('EMAIL')->unique()->index();
             $table->string('MANV');
             $table->foreign('MANV')->references('MANV')->on('employees');
             $table->timestamps();

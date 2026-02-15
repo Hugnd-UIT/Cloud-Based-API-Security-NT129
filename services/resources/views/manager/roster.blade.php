@@ -17,10 +17,12 @@
                 <div class="bg-blue-600 text-white p-2 rounded-lg font-bold">PS</div>
                 <span class="font-bold text-xl text-gray-700">PayShield</span>
             </div>
+            <!--Sửa lại link sau khi làm đăng nhập-->
             <div class="hidden md:flex gap-6">
-                <a href="/dashboard" class="text-gray-500 hover:text-blue-600 font-medium transition">Dashboard</a>
+                <a href="/dashboard/manager" class="text-gray-500 hover:text-blue-600 font-medium transition">Dashboard</a>
                 <a href="/roster" class="text-blue-600 font-bold border-b-2 border-blue-600 pb-1">Nhân sự</a>
                 <a href="/payroll" class="text-gray-500 hover:text-blue-600 font-medium transition">Bảng lương</a>
+                <a href="/profile" class="text-gray-500 hover:text-blue-600 font-medium transition">Profile</a>
             </div>
         </div>
         <div class="text-sm text-gray-500">Admin</div>

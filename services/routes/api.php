@@ -10,7 +10,9 @@ Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
 
-Route::get('/dashboard', [DashboardApiController::class, 'index']);
+Route::get('/dashboard/manager', [DashboardApiController::class, 'get_manager_data']);
+
+Route::get('/dashboard/employee', [DashboardApiController::class, 'get_employee_data']);
 
 Route::get('/payroll', [PayrollApiController::class, 'index']);
 
