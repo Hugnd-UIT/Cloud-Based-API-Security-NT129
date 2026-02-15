@@ -1,6 +1,8 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ProfileApiController;
+use App\Http\Controllers\SalaryApiController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -18,19 +20,6 @@ Route::get('/payroll', function() {
     return view('manager.payroll');
 });
 
-Route::get('/login', function() {
-    return view('auth.login');
-});
+Route::get('/profile/{manv}', [ProfileApiController::class, 'showProfile']);
 
-use App\Http\Controllers\ProfileApiController;
-
-Route::middleware(['auth'])->group(function () {
-    
-    // Route xem hồ sơ của tôi (Click từ menu)
-    Route::get('/my-profile', [ProfileApiController::class, 'myProfile'])->name('profile.me');
-
-    // Route xem chi tiết nhân viên (Có tham số manv)
-    // Ví dụ: domain.com/profile/NV001
-    Route::get('/profile/{manv}', [ProfileApiController::class, 'show'])->name('profile.show');
-
-});
+Route::get('/salary/{manv}', [SalaryApiController::class, 'showSalary']);
