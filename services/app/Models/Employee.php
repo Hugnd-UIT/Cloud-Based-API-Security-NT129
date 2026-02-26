@@ -21,4 +21,7 @@ class Employee extends Model
         return $this->hasOne(User::class, 'MANV', 'MANV');
     }
 
+    public function payrolls(){
+        return $this->hasMany(Payroll::class, 'MANV', 'MANV');
+    }
 }

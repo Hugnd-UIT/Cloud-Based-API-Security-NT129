@@ -1,119 +1,146 @@
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Thu nhập cá nhân | PayShield</title>
+@extends('layouts.master')
+
+@section('title', 'Lương của tôi - PayShield')
+
+@push('styles')
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <style> body { font-family: 'Inter', sans-serif; } </style>
-</head>
-<body class="bg-gray-50 text-gray-800">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+@endpush
 
-    <nav class="bg-white border-b border-gray-200 px-6 py-4 shadow-sm mb-8">
-        <div class="max-w-6xl mx-auto flex justify-between items-center">
-            <div class="flex items-center gap-2">
-                <div class="bg-emerald-600 text-white p-2 rounded-lg font-bold text-sm">PAY</div>
-                <span class="font-bold text-xl tracking-tight text-gray-800">Cổng Tra Cứu Lương</span>
-            </div>
-            <a href="/profile/{{ $employee->MANV }}" class="text-sm font-bold text-emerald-600 hover:bg-emerald-50 px-4 py-2 rounded-lg transition">
-                <i class="fa-solid fa-arrow-left mr-2"></i> Quay lại hồ sơ
-            </a>
+@section('content')
+<div class="max-w-7xl mx-auto p-6">
+    <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+        <div>
+            <h2 class="text-2xl font-bold text-gray-800">Lương Của Tôi</h2>
+            <p class="text-sm text-gray-500">Xin chào <span class="font-bold text-blue-600">{{ $employee->HOTEN ?? 'Nhân viên' }}</span>! Dưới đây là chi tiết thu nhập của bạn.</p>
         </div>
-    </nav>
-
-    <div class="max-w-6xl mx-auto px-6 pb-12">
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-            <div class="lg:col-span-2 bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col justify-center">
-                <p class="text-sm text-gray-400 font-medium">Xin chào,</p>
-                <h2 class="text-3xl font-extrabold text-gray-800">{{ $employee->HOTEN }}</h2>
-                <div class="flex gap-4 mt-4">
-                    <span class="bg-gray-100 text-gray-600 px-3 py-1 rounded-md text-xs font-bold uppercase tracking-wider">Mã: {{ $employee->MANV }}</span>
-                    <span class="bg-emerald-100 text-emerald-700 px-3 py-1 rounded-md text-xs font-bold uppercase tracking-wider">{{ $employee->CHUCVU }}</span>
-                </div>
+        
+        <div class="flex gap-3 bg-white p-2 rounded-lg shadow-sm border border-gray-200">
+            <div class="flex items-center px-2 text-gray-500">
+                <i class="fas fa-calendar-alt mr-2"></i> Lọc theo năm:
             </div>
-            
-            <div class="bg-emerald-600 p-6 rounded-2xl shadow-lg text-white">
-                <p class="text-emerald-100 text-sm font-bold uppercase tracking-widest mb-2">Tổng thu nhập (Năm nay)</p>
-                <h3 class="text-3xl font-black">{{ number_format($payrolls->where('NAM', 2026)->sum('TIENLUONGTL')) }}</h3>
-                <p class="text-emerald-100 text-xs mt-2 italic">* Bao gồm lương cơ bản, thưởng và phụ cấp</p>
-            </div>
-        </div>
-
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
-                <h3 class="font-bold text-gray-700 mb-6 flex items-center gap-2">
-                    <i class="fa-solid fa-chart-line text-emerald-500"></i> Xu hướng thu nhập
-                </h3>
-                <div class="h-64">
-                    <canvas id="salaryChart"></canvas>
-                </div>
-            </div>
-
-            <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-                <div class="px-6 py-4 border-b border-gray-50">
-                    <h3 class="font-bold text-gray-700">Chi tiết các kỳ lương</h3>
-                </div>
-                <div class="overflow-x-auto max-h-[300px] overflow-y-auto">
-                    <table class="w-full text-left">
-                        <thead class="bg-gray-50 sticky top-0">
-                            <tr>
-                                <th class="px-6 py-3 text-[10px] font-bold text-gray-400 uppercase">Kỳ</th>
-                                <th class="px-6 py-3 text-[10px] font-bold text-gray-400 uppercase text-right">Cơ bản</th>
-                                <th class="px-6 py-3 text-[10px] font-bold text-gray-400 uppercase text-right">Thưởng/Phạt</th>
-                                <th class="px-6 py-3 text-[10px] font-bold text-gray-400 uppercase text-right">Thực lĩnh</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-gray-50">
-                            @foreach($payrolls as $salary)
-                            <tr class="hover:bg-gray-50 transition">
-                                <td class="px-6 py-4 text-sm font-bold text-gray-700">{{ $salary->THANG }}/{{ $salary->NAM }}</td>
-                                <td class="px-6 py-4 text-sm text-gray-600 text-right">{{ number_format($salary->TIENLUONGCB) }}</td>
-                                <td class="px-6 py-4 text-sm text-right">
-                                    <span class="text-emerald-600">+{{ number_format($salary->TIENTHUONG) }}</span><br>
-                                    <span class="text-rose-500 text-[10px]">-{{ number_format($salary->TIENPHAT) }}</span>
-                                </td>
-                                <td class="px-6 py-4 text-sm font-black text-emerald-600 text-right">{{ number_format($salary->TIENLUONGTL) }}</td>
-                            </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+            <select id="filter_year" onchange="window.render_salary()" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 min-w-[120px]">
+                </select>
         </div>
     </div>
 
-    <script>
-        const ctx = document.getElementById('salaryChart').getContext('2d');
-        new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: {!! json_encode($payrolls->map(fn($p) => "T" . $p->THANG)->toArray()) !!}.reverse(),
-                datasets: [{
-                    label: 'Thực lĩnh (VNĐ)',
-                    data: {!! json_encode($payrolls->map(fn($p) => $p->TIENLUONGTL)->toArray()) !!}.reverse(),
-                    borderColor: '#059669',
-                    backgroundColor: 'rgba(5, 150, 105, 0.1)',
-                    borderWidth: 3,
-                    fill: true,
-                    tension: 0.4,
-                    pointRadius: 4,
-                    pointBackgroundColor: '#fff',
-                    pointBorderColor: '#059669'
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: { legend: { display: false } },
-                scales: {
-                    y: { beginAtZero: false, grid: { display: false } },
-                    x: { grid: { display: false } }
-                }
-            }
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+        <div class="bg-gradient-to-r from-blue-500 to-blue-600 text-white p-6 rounded-xl shadow-lg flex justify-between items-center relative overflow-hidden">
+            <div class="z-10">
+                <p class="text-blue-100 text-sm font-medium mb-1 uppercase tracking-wider">Thực nhận tháng gần nhất</p>
+                <h3 id="latest_salary" class="text-3xl font-bold">0 ₫</h3>
+            </div>
+            <div class="text-6xl opacity-20 absolute right-4 bottom-[-10px] z-0"><i class="fas fa-wallet"></i></div>
+        </div>
+        <div class="bg-gradient-to-r from-emerald-500 to-emerald-600 text-white p-6 rounded-xl shadow-lg flex justify-between items-center relative overflow-hidden">
+            <div class="z-10">
+                <p class="text-emerald-100 text-sm font-medium mb-1 uppercase tracking-wider">Tổng thu nhập năm <span class="label_year font-bold">...</span></p>
+                <h3 id="year_total" class="text-3xl font-bold">0 ₫</h3>
+            </div>
+            <div class="text-6xl opacity-20 absolute right-4 bottom-[-10px] z-0"><i class="fas fa-chart-pie"></i></div>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Kỳ Lương</th>
+                        <th class="px-6 py-4 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">Ngày Công</th>
+                        <th class="px-6 py-4 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Lương Căn Bản</th>
+                        <th class="px-6 py-4 text-right text-xs font-semibold text-green-600 uppercase tracking-wider">Thưởng</th>
+                        <th class="px-6 py-4 text-right text-xs font-semibold text-red-600 uppercase tracking-wider">Phạt</th>
+                        <th class="px-6 py-4 text-right text-sm font-bold text-gray-800 uppercase tracking-wider">Thực nhận</th>
+                    </tr>
+                </thead>
+                <tbody id="my_salary_list" class="bg-white divide-y divide-gray-200">
+                     </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+@endsection
+
+@push('scripts')
+<script>
+
+    const payrollData = @json($payrolls, JSON_NUMERIC_CHECK) || [];
+    
+    const format_money = (amount) => {
+        return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount || 0);
+    };
+
+    const initYears = () => {
+        const yearSelect = document.getElementById('filter_year');
+        const years = [...new Set(payrollData.map(p => p.NAM))].sort((a, b) => b - a);
+        
+        if (years.length === 0) {
+            yearSelect.innerHTML = `<option value="${new Date().getFullYear()}">${new Date().getFullYear()}</option>`;
+            return;
+        }
+
+        yearSelect.innerHTML = years.map(y => `<option value="${y}">${y}</option>`).join('');
+    };
+
+    window.render_salary = function() {
+        const selectedYear = parseInt(document.getElementById('filter_year').value) || new Date().getFullYear();
+        document.querySelectorAll('.label_year').forEach(el => el.innerText = selectedYear);
+
+        const filteredPayrolls = payrollData.filter(p => parseInt(p.NAM) === selectedYear);
+        const table_body = document.getElementById('my_salary_list');
+        const yearTotal = filteredPayrolls.reduce((sum, p) => sum + parseFloat(p.TIENLUONGTL || 0), 0);
+        document.getElementById('year_total').innerText = format_money(yearTotal);
+        
+        if(payrollData.length > 0) {
+            document.getElementById('latest_salary').innerText = format_money(payrollData[0].TIENLUONGTL);
+        }
+
+        table_body.innerHTML = '';
+        if(filteredPayrolls.length === 0) {
+            table_body.innerHTML = `<tr><td colspan="6" class="text-center py-10 text-gray-500 font-medium"><i class="fas fa-box-open text-gray-300 text-3xl block mb-2"></i>Chưa có dữ liệu lương cho năm ${selectedYear}</td></tr>`;
+            return;
+        }
+
+        filteredPayrolls.forEach(pay => {
+            const row = `
+            <tr class="hover:bg-blue-50 transition border-b border-gray-100 group">
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="flex items-center">
+                        <div class="bg-blue-100 text-blue-600 p-2 rounded-lg mr-3 group-hover:bg-blue-200 transition">
+                            <i class="far fa-calendar-alt"></i>
+                        </div>
+                        <div>
+                            <div class="text-sm font-bold text-gray-900">Tháng ${pay.THANG}/${pay.NAM}</div>
+                            <div class="text-xs text-gray-500">Kỳ lương định kỳ</div>
+                        </div>
+                    </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-center">
+                    <span class="px-3 py-1 bg-gray-100 text-gray-700 font-medium rounded-full text-sm">
+                        ${pay.SONGAYCONG} ngày
+                    </span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-right font-medium text-gray-600">
+                    ${format_money(pay.TIENLUONGCB)}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-right font-semibold text-green-600">
+                    +${format_money(pay.TIENTHUONG)}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-right font-semibold text-red-500">
+                    -${format_money(pay.TIENPHAT)}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-right font-bold text-blue-600 text-lg">
+                    ${format_money(pay.TIENLUONGTL)}
+                </td>
+            </tr>`;
+            table_body.innerHTML += row;
         });
-    </script>
-</body>
-</html>
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        initYears();         
+        render_salary();     
+    });
+</script>
+@endpush
