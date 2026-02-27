@@ -12,7 +12,7 @@
     <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
         <div>
             <h2 class="text-2xl font-bold text-gray-800">Lương Của Tôi</h2>
-            <p class="text-sm text-gray-500">Xin chào <span class="font-bold text-blue-600">{{ $employee->HOTEN ?? 'Nhân viên' }}</span>! Dưới đây là chi tiết thu nhập của bạn.</p>
+            <p class="text-sm text-gray-500">Xin chào <span id="emp_name" class="font-bold text-blue-600">...</span>! Dưới đây là chi tiết thu nhập của bạn.</p>
         </div>
         
         <div class="flex gap-3 bg-white p-2 rounded-lg shadow-sm border border-gray-200">
@@ -27,7 +27,7 @@
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
         <div class="bg-gradient-to-r from-blue-500 to-blue-600 text-white p-6 rounded-xl shadow-lg flex justify-between items-center relative overflow-hidden">
             <div class="z-10">
-                <p class="text-blue-100 text-sm font-medium mb-1 uppercase tracking-wider">Thực nhận tháng gần nhất</p>
+                <p class="text-blue-100 text-sm font-medium mb-1 uppercase tracking-wider">Thực nhận kỳ gần nhất</p>
                 <h3 id="latest_salary" class="text-3xl font-bold">0 ₫</h3>
             </div>
             <div class="text-6xl opacity-20 absolute right-4 bottom-[-10px] z-0"><i class="fas fa-wallet"></i></div>
@@ -55,7 +55,8 @@
                     </tr>
                 </thead>
                 <tbody id="my_salary_list" class="bg-white divide-y divide-gray-200">
-                     </tbody>
+                     <tr><td colspan="6" class="text-center py-10 text-gray-500 font-medium">Đang tải dữ liệu...</td></tr>
+                </tbody>
             </table>
         </div>
     </div>
@@ -64,9 +65,8 @@
 
 @push('scripts')
 <script>
+    let payrollData = []; 
 
-    const payrollData = @json($payrolls, JSON_NUMERIC_CHECK) || [];
-    
     const format_money = (amount) => {
         return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount || 0);
     };
@@ -94,6 +94,8 @@
         
         if(payrollData.length > 0) {
             document.getElementById('latest_salary').innerText = format_money(payrollData[0].TIENLUONGTL);
+        } else {
+            document.getElementById('latest_salary').innerText = '0 ₫';
         }
 
         table_body.innerHTML = '';
@@ -139,8 +141,22 @@
     }
 
     document.addEventListener('DOMContentLoaded', function() {
-        initYears();         
-        render_salary();     
+        const pathArray = window.location.pathname.split('/');
+        const manv = pathArray[pathArray.length - 2]; 
+
+        fetch('/api/salary/' + manv)
+            .then(response => response.json())
+            .then(res => {
+                if(res.status) {
+                    document.getElementById('emp_name').innerText = res.data.employee.HOTEN;
+                    payrollData = res.data.payrolls;
+                    initYears();         
+                    render_salary();     
+                } else {
+                    alert(res.message);
+                }
+            })
+            .catch(err => console.error("Lỗi:", err));
     });
 </script>
 @endpush

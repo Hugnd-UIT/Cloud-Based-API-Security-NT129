@@ -89,7 +89,7 @@
 @push('scripts')
 <script>
     window.load_roster = function() {
-        fetch('/api/roster')
+        fetch('/api/employees')
             .then(r => r.json())
             .then(data => {
                 const table_body = document.getElementById('roster_list');
@@ -129,7 +129,7 @@
     }
 
     window.edit_employee = function(id) {
-        fetch(`/api/roster/${id}`)
+        fetch(`/api/employees/${id}`)
             .then(r => r.json())
             .then(emp => {
                 window.open_modal(id);
@@ -148,7 +148,7 @@
     window.save_employee = function(e) {
         e.preventDefault();
         const id = document.getElementById('employee_id').value;
-        const url = id ? `/api/roster/${id}` : '/api/roster';
+        const url = id ? `/api/employees/${id}` : '/api/employees';
         const method = id ? 'PUT' : 'POST';
 
         const data = {
@@ -182,7 +182,7 @@
 
     window.delete_employee = function(id) {
         if(confirm('Bạn có chắc muốn xóa?')) {
-            fetch(`/api/roster/${id}`, { method: 'DELETE' })
+            fetch(`/api/employees/${id}`, { method: 'DELETE' })
             .then(r => r.json())
             .then(res => {
                 if(res.success) window.load_roster();

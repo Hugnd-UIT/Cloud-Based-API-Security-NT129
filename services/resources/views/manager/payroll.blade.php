@@ -81,7 +81,7 @@
         document.querySelector('.label_month').innerText = `${m}/${y}`;
         document.getElementById('payroll_list').innerHTML = '<tr><td colspan="6" class="text-center py-10 text-gray-500">Đang tải dữ liệu...</td></tr>';
 
-        fetch(`/api/payroll?month=${m}&year=${y}`)
+        fetch(`/api/payrolls?month=${m}&year=${y}`)
             .then(response => response.json())
             .then(res => {
                 document.getElementById('sum_total').innerText = format_money(res.summary.total_cost);

@@ -12,6 +12,11 @@ class RosterApiController extends Controller
         return response()->json(Employee::orderBy('created_at', 'desc')->get());
     }
 
+    public function show($id)
+    {
+        return response()->json(Employee::find($id));
+    }
+
     public function store(Request $request)
     {
         try {
@@ -23,11 +28,6 @@ class RosterApiController extends Controller
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => $e->getMessage()]);
         }
-    }
-
-    public function show($id)
-    {
-        return response()->json(Employee::find($id));
     }
 
     public function update(Request $request, $id)

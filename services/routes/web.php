@@ -23,7 +23,9 @@ Route::prefix('manager/{manv}')->group(function () {
     Route::get('/payroll', function ($manv) {
         return view('manager.payroll', ['manv' => $manv]);
     });
-    Route::get('/profile', [ProfileApiController::class, 'showProfile']);
+    Route::get('/profile', function ($manv) {
+        return view('profile'); 
+    });
 });
 
 Route::prefix('employee/{manv}')->group(function () {
@@ -35,10 +37,10 @@ Route::prefix('employee/{manv}')->group(function () {
             'employee' => $employee
         ]);
     });
-
-    Route::get('/salary', [SalaryApiController::class, 'showSalary']);
-    Route::get('/profile', [ProfileApiController::class, 'showProfile']);
+    Route::get('/salary', function ($manv) {
+        return view('employee.salary');
+    });
+    Route::get('/profile', function ($manv) {
+        return view('profile');
+    });
 });
-
-Route::get('/api/dashboard/manager-data', [DashboardApiController::class, 'get_manager_data']);
-Route::get('/api/dashboard/employee-data', [DashboardApiController::class, 'get_employee_data']);
